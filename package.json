@@ -2,7 +2,7 @@
   "name": "droidkit",
   "displayName": "DroidKit",
   "description": "Android development toolkit for VS Code — AVD Manager, Build, Run, ADB, and Logcat without opening Android Studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "dayanleksonoputro",
   "repository": {
     "type": "git",

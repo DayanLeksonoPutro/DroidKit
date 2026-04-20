@@ -1,7 +1,5 @@
 # DroidKit — Android Development Toolkit for VS Code
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/dayanleksonoputro.droidkit?color=blue)](https://marketplace.visualstudio.com/items?itemName=dayanleksonoputro.droidkit)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/dayanleksonoputro.droidkit)](https://marketplace.visualstudio.com/items?itemName=dayanleksonoputro.droidkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
