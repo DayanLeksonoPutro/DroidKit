@@ -2,7 +2,7 @@
   "name": "droidkit",
   "displayName": "DroidKit",
   "description": "Android development toolkit for VS Code — AVD Manager, Build, Run, ADB, and Logcat without opening Android Studio",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "dayanleksonoputro",
   "repository": {
     "type": "git",
@@ -34,6 +34,11 @@
           "id": "avdManager",
           "name": "Virtual Devices",
           "icon": "resources/android.svg"
+        },
+        {
+          "id": "gradleTasks",
+          "name": "Gradle Tasks",
+          "icon": "$(tools)"
         }
       ]
     },
@@ -55,7 +60,9 @@
       { "command": "android.adb.shell",     "title": "ADB: Open Shell",     "icon": "$(terminal)" },
       { "command": "android.adb.screenshot","title": "ADB: Screenshot",     "icon": "$(device-camera)" },
       { "command": "android.adb.reboot",    "title": "ADB: Reboot Device",  "icon": "$(sync)" },
-      { "command": "android.adb.wireless",  "title": "ADB: Connect Wireless","icon": "$(radio-tower)" }
+      { "command": "android.adb.wireless",  "title": "ADB: Connect Wireless","icon": "$(radio-tower)" },
+      { "command": "android.gradle.runTask",  "title": "Run Gradle Task",     "icon": "$(play)" },
+      { "command": "android.gradle.refresh",  "title": "Refresh Gradle Tasks","icon": "$(refresh)" }
     ],
     "menus": {
       "view/title": [
@@ -67,6 +74,11 @@
         {
           "command": "android.avd.refresh",
           "when": "view == avdManager",
+          "group": "navigation"
+        },
+        {
+          "command": "android.gradle.refresh",
+          "when": "view == gradleTasks",
           "group": "navigation"
         }
       ],
@@ -90,13 +102,19 @@
           "command": "android.avd.delete",
           "when": "view == avdManager && viewItem == avdStopped",
           "group": "avd@2"
+        },
+        {
+          "command": "android.gradle.runTask",
+          "when": "view == gradleTasks && viewItem == gradleTask",
+          "group": "inline@1"
         }
       ],
       "commandPalette": [
-        { "command": "android.avd.launch",  "when": "false" },
-        { "command": "android.avd.stop",    "when": "false" },
-        { "command": "android.avd.delete",  "when": "false" },
-        { "command": "android.avd.wipe",    "when": "false" }
+        { "command": "android.avd.launch",     "when": "false" },
+        { "command": "android.avd.stop",       "when": "false" },
+        { "command": "android.avd.delete",     "when": "false" },
+        { "command": "android.avd.wipe",       "when": "false" },
+        { "command": "android.gradle.runTask", "when": "false" }
       ]
     },
     "configuration": {

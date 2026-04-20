@@ -3,6 +3,7 @@ import { createAvd, deleteAvd, launchAvd, stopAvd, wipeAvd } from './avd/avdMana
 import { AvdItem, AvdProvider } from './avd/avdProvider';
 import { connectWireless, listDevices, openShell, rebootDevice, takeScreenshot } from './android/adbManager';
 import { buildDebug, buildRelease, cleanProject, runOnDevice, uninstallFromDevice } from './android/gradleManager';
+import { GradleTaskProvider, TaskItem, runGradleTask } from './android/gradleTaskProvider';
 import * as logcat from './android/logcatManager';
 import { AndroidStatusBar } from './ui/statusBar';
 import { getSdkPaths, validateSdk } from './utils/androidSdk';
@@ -19,6 +20,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('avdManager', avdProvider),
     { dispose: () => avdProvider.dispose() }
+  );
+
+  // Gradle Tasks TreeView
+  const gradleProvider = new GradleTaskProvider();
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider('gradleTasks', gradleProvider)
   );
 
   // Status bar
@@ -99,6 +106,14 @@ export function activate(context: vscode.ExtensionContext) {
   reg('android.adb.screenshot', () => takeScreenshot());
   reg('android.adb.reboot',     () => rebootDevice());
   reg('android.adb.wireless',   () => connectWireless());
+
+  // ── Gradle Tasks commands ─────────────────────────────────────
+  reg('android.gradle.refresh', () => gradleProvider.refresh());
+  reg('android.gradle.runTask', (item?: TaskItem) => {
+    if (item?.task) {
+      runGradleTask(item.task);
+    }
+  });
 
   context.subscriptions.push({ dispose: () => logcat.dispose() });
 
