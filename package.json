@@ -1,0 +1,139 @@
+{
+  "name": "droidkit",
+  "displayName": "DroidKit",
+  "description": "Android development toolkit for VS Code — AVD Manager, Build, Run, ADB, and Logcat without opening Android Studio",
+  "version": "0.1.0",
+  "publisher": "dayanleksonoputro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DayanLeksonoPutro/DroidKit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DayanLeksonoPutro/DroidKit/issues"
+  },
+  "homepage": "https://github.com/DayanLeksonoPutro/DroidKit#readme",
+  "keywords": ["android", "avd", "emulator", "adb", "logcat", "gradle", "kotlin", "mobile"],
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "icon": "resources/icon.png",
+  "activationEvents": ["workspaceContains:**/gradlew"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "android-tools",
+          "title": "Android Tools",
+          "icon": "resources/android.svg"
+        }
+      ]
+    },
+    "views": {
+      "android-tools": [
+        {
+          "id": "avdManager",
+          "name": "Virtual Devices",
+          "icon": "resources/android.svg"
+        }
+      ]
+    },
+    "commands": [
+      { "command": "android.avd.refresh",   "title": "Refresh AVDs",        "icon": "$(refresh)" },
+      { "command": "android.avd.launch",    "title": "Launch Emulator",     "icon": "$(play)" },
+      { "command": "android.avd.stop",      "title": "Stop Emulator",       "icon": "$(debug-stop)" },
+      { "command": "android.avd.delete",    "title": "Delete AVD",          "icon": "$(trash)" },
+      { "command": "android.avd.create",    "title": "Create New AVD",      "icon": "$(add)" },
+      { "command": "android.avd.wipe",      "title": "Wipe AVD Data",       "icon": "$(clear-all)" },
+      { "command": "android.build.debug",   "title": "Build Debug",         "icon": "$(tools)" },
+      { "command": "android.build.release", "title": "Build Release",       "icon": "$(package)" },
+      { "command": "android.build.clean",   "title": "Clean Project",       "icon": "$(trash)" },
+      { "command": "android.run.debug",     "title": "Run on Device",       "icon": "$(play)" },
+      { "command": "android.run.uninstall", "title": "Uninstall from Device","icon": "$(remove)" },
+      { "command": "android.logcat.start",  "title": "Start Logcat",        "icon": "$(list-unordered)" },
+      { "command": "android.logcat.clear",  "title": "Clear Logcat",        "icon": "$(clear-all)" },
+      { "command": "android.adb.devices",   "title": "ADB: List Devices",   "icon": "$(device-mobile)" },
+      { "command": "android.adb.shell",     "title": "ADB: Open Shell",     "icon": "$(terminal)" },
+      { "command": "android.adb.screenshot","title": "ADB: Screenshot",     "icon": "$(device-camera)" },
+      { "command": "android.adb.reboot",    "title": "ADB: Reboot Device",  "icon": "$(sync)" },
+      { "command": "android.adb.wireless",  "title": "ADB: Connect Wireless","icon": "$(radio-tower)" }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "android.avd.create",
+          "when": "view == avdManager",
+          "group": "navigation"
+        },
+        {
+          "command": "android.avd.refresh",
+          "when": "view == avdManager",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "android.avd.launch",
+          "when": "view == avdManager && viewItem == avdStopped",
+          "group": "inline@1"
+        },
+        {
+          "command": "android.avd.stop",
+          "when": "view == avdManager && viewItem == avdRunning",
+          "group": "inline@1"
+        },
+        {
+          "command": "android.avd.wipe",
+          "when": "view == avdManager && viewItem == avdStopped",
+          "group": "avd@1"
+        },
+        {
+          "command": "android.avd.delete",
+          "when": "view == avdManager && viewItem == avdStopped",
+          "group": "avd@2"
+        }
+      ],
+      "commandPalette": [
+        { "command": "android.avd.launch",  "when": "false" },
+        { "command": "android.avd.stop",    "when": "false" },
+        { "command": "android.avd.delete",  "when": "false" },
+        { "command": "android.avd.wipe",    "when": "false" }
+      ]
+    },
+    "configuration": {
+      "title": "Android Tools",
+      "properties": {
+        "androidTools.sdkPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path ke Android SDK (kosongkan untuk auto-detect)"
+        },
+        "androidTools.appPackage": {
+          "type": "string",
+          "default": "",
+          "description": "Application package name (e.g. com.example.app)"
+        },
+        "androidTools.mainActivity": {
+          "type": "string",
+          "default": ".MainActivity",
+          "description": "Main activity name"
+        },
+        "androidTools.javaHome": {
+          "type": "string",
+          "default": "",
+          "description": "Path ke JDK 17+ untuk avdmanager (kosongkan untuk auto-detect)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}
