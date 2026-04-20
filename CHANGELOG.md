@@ -6,7 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [0.1.1] - 2026-04-20
+## [0.2.1] - 2026-04-20
+### Fixed
+- Flavor detection: balanced brace extractor — tidak salah parse nested `{}` di build.gradle
+- Flavor dimensions: generate cartesian product kombinasi antar dimensi
+- Kotlin DSL: support `create("flavorName")` dan `dimension = "env"` syntax
+- Multi-dimension task name: `installDevFreeDebug`, `installProdPaidDebug`, dst
+
+## [0.2.0] - 2026-04-20
 ### Fixed
 - Hapus badge shields.io yang deprecated dari README
 
