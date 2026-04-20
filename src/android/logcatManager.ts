@@ -12,8 +12,9 @@ function getChannel(): vscode.OutputChannel {
   return outputChannel;
 }
 
-function getPackageName(): string {
-  return vscode.workspace.getConfiguration('androidTools').get<string>('appPackage') || '';
+async function getPackageName(): Promise<string> {
+  const { resolvePackageName } = await import('../utils/projectDetector');
+  return (await resolvePackageName()) ?? '';
 }
 
 export async function startLogcat(): Promise<void> {
@@ -24,7 +25,7 @@ export async function startLogcat(): Promise<void> {
   }
 
   const paths = getSdkPaths();
-  const pkg = getPackageName();
+  const pkg = await getPackageName();
   const channel = getChannel();
 
   channel.clear();

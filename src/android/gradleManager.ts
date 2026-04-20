@@ -1,19 +1,14 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { resolveMainActivity, resolvePackageName } from '../utils/projectDetector';
+import { getSdkPaths } from '../utils/androidSdk';
 
 function getWorkspaceRoot(): string | null {
-  const folders = vscode.workspace.workspaceFolders;
-  return folders ? folders[0].uri.fsPath : null;
+  return vscode.workspace.workspaceFolders?.[0].uri.fsPath ?? null;
 }
 
-function getPackageName(): string {
-  const config = vscode.workspace.getConfiguration('androidTools');
-  return config.get<string>('appPackage') || '';
-}
-
-function getMainActivity(): string {
-  const config = vscode.workspace.getConfiguration('androidTools');
-  return config.get<string>('mainActivity') || '.MainActivity';
+function gradlewPath(root: string): string {
+  return path.join(root, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
 }
 
 function runGradle(taskLabel: string, gradleArgs: string, reuseTerminal = false): void {
@@ -23,17 +18,14 @@ function runGradle(taskLabel: string, gradleArgs: string, reuseTerminal = false)
     return;
   }
 
-  const gradlew = path.join(root, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
-  const cmd = `"${gradlew}" ${gradleArgs}`;
+  const cmd = `"${gradlewPath(root)}" ${gradleArgs}`;
+  let terminal = reuseTerminal
+    ? vscode.window.terminals.find(t => t.name === taskLabel)
+    : undefined;
 
-  let terminal: vscode.Terminal | undefined;
-  if (reuseTerminal) {
-    terminal = vscode.window.terminals.find(t => t.name === taskLabel);
-  }
   if (!terminal) {
     terminal = vscode.window.createTerminal({ name: taskLabel, cwd: root });
   }
-
   terminal.sendText(cmd);
   terminal.show();
 }
@@ -51,41 +43,36 @@ export function cleanProject(): void {
 }
 
 export async function runOnDevice(): Promise<void> {
-  const pkg = getPackageName();
-  const activity = getMainActivity();
-
-  if (!pkg) {
-    const input = await vscode.window.showInputBox({
-      prompt: 'Package name aplikasi (e.g. com.example.app)',
-      placeHolder: 'com.example.app',
-    });
-    if (!input) return;
-    await vscode.workspace
-      .getConfiguration('androidTools')
-      .update('appPackage', input, vscode.ConfigurationTarget.Workspace);
+  const root = getWorkspaceRoot();
+  if (!root) {
+    vscode.window.showErrorMessage('Tidak ada workspace yang terbuka.');
+    return;
   }
 
-  const finalPkg = pkg || (await vscode.workspace.getConfiguration('androidTools').get<string>('appPackage')) || '';
-  if (!finalPkg) return;
+  // Auto-detect package name dari build.gradle / manifest
+  const pkg = await resolvePackageName();
+  if (!pkg) return;
 
-  const fullActivity = activity.startsWith('.') ? `${finalPkg}${activity}` : activity;
+  // Auto-detect main activity dari manifest
+  const activityShort = await resolveMainActivity(pkg);
+  const fullActivity = activityShort.startsWith('.')
+    ? `${pkg}${activityShort}`
+    : activityShort;
 
-  // installDebug lalu launch via ADB
-  const root = getWorkspaceRoot()!;
-  const gradlew = path.join(root, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
-
+  const { adb } = getSdkPaths();
   const terminal = vscode.window.createTerminal({ name: 'Gradle: Run', cwd: root });
-  terminal.sendText(`"${gradlew}" installDebug && adb shell am start -n "${finalPkg}/${fullActivity}"`);
+  terminal.sendText(
+    `"${gradlewPath(root)}" installDebug && "${adb}" shell am start -n "${pkg}/${fullActivity}"`
+  );
   terminal.show();
 }
 
-export function uninstallFromDevice(): void {
-  const pkg = getPackageName();
-  if (!pkg) {
-    vscode.window.showErrorMessage('Set androidTools.appPackage di settings terlebih dahulu.');
-    return;
-  }
+export async function uninstallFromDevice(): Promise<void> {
+  const pkg = await resolvePackageName();
+  if (!pkg) return;
+
+  const { adb } = getSdkPaths();
   const terminal = vscode.window.createTerminal({ name: 'ADB: Uninstall' });
-  terminal.sendText(`adb uninstall "${pkg}"`);
+  terminal.sendText(`"${adb}" uninstall "${pkg}"`);
   terminal.show();
 }

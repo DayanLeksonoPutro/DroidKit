@@ -30,15 +30,27 @@ function findJava17(): string | null {
   return null;
 }
 
+function detectSdkFromLocalProperties(): string | null {
+  // Lazy import untuk hindari circular dependency
+  try {
+    const { detectSdkDirFromLocalProperties } = require('./projectDetector');
+    return detectSdkDirFromLocalProperties();
+  } catch {
+    return null;
+  }
+}
+
 export function getSdkPaths(): SdkPaths {
   const config = vscode.workspace.getConfiguration('androidTools');
 
   const sdkRoot =
     config.get<string>('sdkPath') ||
+    detectSdkFromLocalProperties() ||
     process.env.ANDROID_HOME ||
     process.env.ANDROID_SDK_ROOT ||
-    path.join(os.homedir(), 'Library', 'Android', 'sdk') ||
-    path.join(os.homedir(), 'Android', 'sdk');
+    (fs.existsSync(path.join(os.homedir(), 'Library', 'Android', 'sdk'))
+      ? path.join(os.homedir(), 'Library', 'Android', 'sdk')
+      : path.join(os.homedir(), 'Android', 'sdk'));
 
   const javaHome =
     config.get<string>('javaHome') ||
@@ -65,7 +77,12 @@ export function validateSdk(paths: SdkPaths): string | null {
 }
 
 export function buildEnv(paths: SdkPaths): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env, ANDROID_HOME: paths.sdkRoot, ANDROID_SDK_ROOT: paths.sdkRoot };
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    ANDROID_HOME: paths.sdkRoot,
+    ANDROID_SDK_ROOT: paths.sdkRoot,
+    SKIP_JDK_VERSION_CHECK: '1',  // fallback jika JDK < 17
+  };
   if (paths.javaHome) {
     env.JAVA_HOME = paths.javaHome;
     env.PATH = `${path.join(paths.javaHome, 'bin')}:${process.env.PATH}`;
